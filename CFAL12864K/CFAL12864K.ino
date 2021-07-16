@@ -7,7 +7,11 @@
 //
 //  ref: https://www.crystalfontz.com/product/cfal12864k
 //
-//  2017 - 03 - 25 Brent A. Crosby
+//  The controller is a Solomon Systech SSD1309
+//    https://www.crystalfontz.com/controllers/SolomonSystech/SSD1309/
+//
+// 2021 - 07 - 16 Kelsey Zaches
+// 2017 - 03 - 25 Brent A. Crosby
 //===========================================================================
 //This is free and unencumbered software released into the public domain.
 //
@@ -34,64 +38,114 @@
 //
 //For more information, please refer to <http://unlicense.org/>
 //===========================================================================
-//#include "types.h"
-//The IDE may kill "types.h". If so add types.h back into the sketch
-//by using the down arrow in the file tab bar, then paste the following
-//code into it.
-
-#ifndef H_types
-#define H_types
-
-typedef struct
-  {
-  unsigned char
-    bitmap_data[4][128];
-  } SCREEN_IMAGE;
-
-#endif // H_types
-
-
 
 #define ADDR_MODE 2 //0:horizontal, 1:vertical, 2:page
 
-#define SSD1306B_VCOMH_DESELECT_0p65xVCC_00     (0x00)
-#define SSD1306B_COM_CONFIG_SEQUENTIAL_LEFT_02  (0x02)
-#define SSD1306B_VCOMH_DESELECT_0p71xVCC_10     (0x10)
-#define SSD1306B_COM_CONFIG_ALTERNATE_LEFT_12   (0x12)
-#define SSD1306B_DCDC_CONFIG_7p5v_14            (0x14)
-#define SSD1306B_DCDC_CONFIG_6p0v_15            (0x15)
-#define SSD1306B_VCOMH_DESELECT_0p77xVCC_20     (0x20)
-#define SSD1306B_COM_CONFIG_SEQUENTIAL_RIGHT_22 (0x22)
-#define SSD1306B_DEACTIVATE_SCROLL_2E           (0x2E)  //Missing from Datasheet
-#define SSD1306B_VCOMH_DESELECT_0p83xVCC_30     (0x30)
-#define SSD1306B_COM_CONFIG_ALTERNATE_RIGHT_32  (0x32)
-#define SSD1306B_DISPLAY_START_LINE_40          (0x40)
-#define SSD1306B_CONTRAST_PREFIX_81             (0x81)
-#define SSD1306B_DCDC_CONFIG_PREFIX_8D          (0x8D)
-#define SSD1306B_DCDC_CONFIG_8p5v_94            (0x94)
-#define SSD1306B_DCDC_CONFIG_9p0v_95            (0x95)
-#define SSD1306B_SEG0_IS_COL_0_A0               (0xA0)
-#define SSD1306B_SEG0_IS_COL_127_A1             (0xA1)
-#define SSD1306B_ENTIRE_DISPLAY_NORMAL_A4       (0xA4)
-#define SSD1306B_ENTIRE_DISPLAY_FORCE_ON_A5     (0xA5)
-#define SSD1306B_INVERSION_NORMAL_A6            (0xA6)
-#define SSD1306B_INVERSION_INVERTED_A7          (0xA7)
-#define SSD1306B_MULTIPLEX_RATIO_PREFIX_A8      (0xA8)
-#define SSD1306B_SET_MASTER_CONFIGURATION_AD    (0xAD)  //Missing from Datasheet
-#define SSD1306B_DISPLAY_OFF_YES_SLEEP_AE       (0xAE)
-#define SSD1306B_DISPLAY_ON_NO_SLEEP_AF         (0xAF)
-#define SSD1306B_SCAN_DIR_UP_C0                 (0xC0)
-#define SSD1306B_SCAN_DIR_DOWN_C8               (0xC8)
-#define SSD1306B_DISPLAY_OFFSET_PREFIX_D3       (0xD3)
-#define SSD1306B_CLOCK_DIVIDE_PREFIX_D5         (0xD5)
-#define SSD1306B_COLOR_AND_LOW_POWER_DISPLAY_MODE_D8 (0xD8)  //Missing from Datasheet
-#define SSD1306B_PRECHARGE_PERIOD_PREFIX_D9     (0xD9)
-#define SSD1306B_COM_CONFIG_PREFIX_DA           (0xDA)
-#define SSD1306B_VCOMH_DESELECT_PREFIX_DB       (0xDB)
+#define SSD1309_VCOMH_DESELECT_0p65xVCC_00     (0x00)
+#define SSD1309_COM_CONFIG_SEQUENTIAL_LEFT_02  (0x02)
+#define SSD1309_VCOMH_DESELECT_0p71xVCC_10     (0x10)
+#define SSD1309_COM_CONFIG_ALTERNATE_LEFT_12   (0x12)
+#define SSD1309_DCDC_CONFIG_7p5v_14            (0x14)
+#define SSD1309_DCDC_CONFIG_6p0v_15            (0x15)
+#define SSD1309_VCOMH_DESELECT_0p77xVCC_20     (0x20)
+#define SSD1309_COM_CONFIG_SEQUENTIAL_RIGHT_22 (0x22)
+#define SSD1309_DEACTIVATE_SCROLL_2E           (0x2E)  //Missing from Datasheet
+#define SSD1309_VCOMH_DESELECT_0p83xVCC_30     (0x30)
+#define SSD1309_COM_CONFIG_ALTERNATE_RIGHT_32  (0x32)
+#define SSD1309_DISPLAY_START_LINE_40          (0x40)
+#define SSD1309_CONTRAST_PREFIX_81             (0x81)
+#define SSD1309_DCDC_CONFIG_PREFIX_8D          (0x8D)
+#define SSD1309_DCDC_CONFIG_8p5v_94            (0x94)
+#define SSD1309_DCDC_CONFIG_9p0v_95            (0x95)
+#define SSD1309_SEG0_IS_COL_0_A0               (0xA0)
+#define SSD1309_SEG0_IS_COL_127_A1             (0xA1)
+#define SSD1309_ENTIRE_DISPLAY_NORMAL_A4       (0xA4)
+#define SSD1309_ENTIRE_DISPLAY_FORCE_ON_A5     (0xA5)
+#define SSD1309_INVERSION_NORMAL_A6            (0xA6)
+#define SSD1309_INVERSION_INVERTED_A7          (0xA7)
+#define SSD1309_MULTIPLEX_RATIO_PREFIX_A8      (0xA8)
+#define SSD1309_SET_MASTER_CONFIGURATION_AD    (0xAD)  //Missing from Datasheet
+#define SSD1309_DISPLAY_OFF_YES_SLEEP_AE       (0xAE)
+#define SSD1309_DISPLAY_ON_NO_SLEEP_AF         (0xAF)
+#define SSD1309_SCAN_DIR_UP_C0                 (0xC0)
+#define SSD1309_SCAN_DIR_DOWN_C8               (0xC8)
+#define SSD1309_DISPLAY_OFFSET_PREFIX_D3       (0xD3)
+#define SSD1309_CLOCK_DIVIDE_PREFIX_D5         (0xD5)
+#define SSD1309_COLOR_AND_LOW_POWER_DISPLAY_MODE_D8 (0xD8)  //Missing from Datasheet
+#define SSD1309_PRECHARGE_PERIOD_PREFIX_D9     (0xD9)
+#define SSD1309_COM_CONFIG_PREFIX_DA           (0xDA)
+#define SSD1309_VCOMH_DESELECT_PREFIX_DB       (0xDB)
 
-#include <SPI.h>
+//==============================================================================
+//  BS0,BS1 interface settings:
+//  
+//      Interface         | BS1 | BS2 
+//  ----------------------+-----+-----
+//    I2C                 |  1  |  0  
+//    4-wire SPI          |  0  |  0  
+//    8-bit 6800 Parallel |  0  |  1  
+//    8-bit 8080 Parallel |  1  |  1  
+//  Select the interface
+//#define SPI_4_WIRE
+#define I2C
+//==============================================================================
+
+#include <avr/io.h>
+#ifdef SPI_4_WIRE
+  #include <SPI.h>
 // C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\SPI.cpp
 // C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\SPI.h
+//================================================================================
+void sendcommand(uint8_t command)
+  {
+  // Select the LCD's command register
+  CLR_DC;
+  // Select the LCD controller
+  CLR_CS;
+
+  //Send the command via SPI:
+  SPI.transfer(command);
+  //deselect the controller
+  SET_CS;
+  }
+//================================================================================
+void senddata(uint8_t data)
+  {
+  //Select the LCD's data register
+  SET_DC;
+  //Select the LCD controller
+  CLR_CS;
+  //Send the command via SPI:
+  SPI.transfer(data);
+
+  // Deselect the LCD controller
+  SET_CS;
+  }
+#endif
+//================================================================================
+
+#ifdef I2C
+  #include <Wire.h>
+  void sendcommand(uint8_t command)
+{
+  Wire.beginTransmission(0x3C); //send start & Slave address
+  Wire.write(0x00);             //Control Byte - Command
+  Wire.write(command);          //payload
+  Wire.endTransmission();
+
+}
+//============================================================================
+void senddata(uint8_t data)
+{
+  Wire.beginTransmission(0x3C); //send start & Slave address
+  Wire.write(0xC0);             //Control Byte - Data (non-continued)
+  Wire.write(data);          //payload
+  Wire.endTransmission();
+}
+#endif
+//================================================================================
+
+
 
 #include <SD.h>
 // C:\Program Files (x86)\Arduino\libraries\SD\src\SD.cpp
@@ -103,7 +157,7 @@ typedef struct
 /*
 The CFAL12864K is a 3.3v device. You need a 3.3v Arduino to operate this
 code properly. We used a seeedunio v4.2 set to 3.3v:
-http://www.seeedstudio.com/item_detail.html?p_id=2517
+https://www.crystalfontz.com/product/cfapn15062-seeeduino-arduino-clone-microprocessor
 
 Connections:
     ==================
@@ -117,10 +171,10 @@ Connections:
         3V3 => 3V3
 
    ===============
-    Arduino => OLED
+    Arduino => OLED SPI
     ===============
         3V3 => Pin 11 (also through ~10uF cap to GND)
-        GND => Pin 1
+        GND => Pins 1 and 2
          D8 => Pin 17
          D9 => Pin 16
         D10 => Pin 15
@@ -128,10 +182,20 @@ Connections:
         D13 => Pin 20
 15v at 40mA => Pin 30
 
+   ===============
+    Arduino => OLED I2C
+    ===============
+        3V3 => Pin 11 (also through ~10uF cap to GND)
+        GND => Pins 1 and 2
+         D9 => Pin 16
+        A4 => Pin 21 and 22 (1k resistor to 3v3)
+        A5 => Pin 20 (1k resistor to 3v3)
+ 15v at 40mA => Pin 30
+
        ============
        OLED => OLED
        ============
-     Pin 12 => GND
+     Pin 12 => (GND for SPI) (3V3 for I2C)
      Pin 13 => GND
      Pin 18 => GND
      Pin 19 => GND
@@ -144,21 +208,6 @@ Connections:
 #define CLR_RESET (digitalWrite(OLED_RESET, LOW))
 #define SET_RESET (digitalWrite(OLED_RESET, HIGH))
 //============================================================================
-
-// LCD SPI & control lines
-//   ARD      | Port | LCD
-// -----------+------+-------------------------
-//  #7/D7     |  PD7 | SD_CS
-//  #8/D8     |  PB0 | LCD_RS
-//  #9/D9     |  PB1 | LCD_RESET
-// #10/D10    |  PB2 | LCD_CS_NOT (or SPI SS)
-// #11/D11    |  PB3 | LCD_MOSI   (hardware SPI)
-// #12/D12    |  PB4 | not used   (would be MISO)
-// #13/D13    |  PB5 | LCD_SCK    (hardware SPI)
-// #23/D14/A0 |  PC0 | Touch XL   (only used on TS modules)
-// #24/D15/A1 |  PC1 | Touch XR   (only used on TS modules)
-// #25/D16/A2 |  PC2 | Touch YD   (only used on TS modules)
-// #26/D17/A3 |  PC3 | Touch YU   (only used on TS modules)
 
 #define CLR_RS    (PORTB &= ~(0x01))
 #define SET_RS    (PORTB |=  (0x01))
@@ -173,59 +222,9 @@ Connections:
 
 #define SD_CS ( 7)
 
-#define TS_XL (14)
-#define TS_XR (15)
-#define TS_YD (16)
-#define TS_YU (17)
-
 //============================================================================
 #define HRES 128
 #define VRES 64
-
-//============================================================================
-void sendcommand(uint8_t command)
-  {
-  // Select the LCD's command register
-  CLR_RS;
-  // Select the LCD controller
-  CLR_CS;
-  //Send the command via SPI:
-  SPI.transfer(command);
-  // Deselect the LCD controller
-  SET_CS;
-  }
-//============================================================================
-void senddata(uint8_t data)
-  {
-  // Select the LCD's data register
-  SET_RS;
-  // Select the LCD controller
-  CLR_CS;
-  //Send the data via SPI:
-  SPI.transfer(data);
-  // Deselect the LCD controller
-  SET_CS;
-  }
-//============================================================================
-//void show_128_x_4_bitmap(const SCREEN_IMAGE *OLED_image)
-//  {
-//  uint8_t
-//    column;
-//  uint8_t
-//    row;
-//  for(row=0;row<8;row++)
-//    {
-//    sendcommand(0x00);      //lower column address
-//    sendcommand(0x10);      //upper column address
-//    sendcommand(0xB0+row);  //set page address
-//    for(column=0;column<128;column++)
-//      {
-//      //Read this byte from the program memory / flash
-//      senddata(pgm_read_byte( &(OLED_image  ->bitmap_data[row][column]) ));
-////_delay_ms(1);      
-//      }
-//    }
-//  }
 //============================================================================
 //Updated code, 2017-03-27
 #if (ADDR_MODE==2)
@@ -254,31 +253,31 @@ void setColAddr(unsigned char startAddr,unsigned char endAddr)
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void Set_Start_Column(unsigned char d)
 {
-  sendcommand(0x00 + d % 16);		// Set Lower Column Start Address for Page Addressing Mode
+  sendcommand(0x00 + d % 16);   // Set Lower Column Start Address for Page Addressing Mode
             //   Default => 0x00
-  sendcommand(0x10 + d / 16);		// Set Higher Column Start Address for Page Addressing Mode
+  sendcommand(0x10 + d / 16);   // Set Higher Column Start Address for Page Addressing Mode
             //   Default => 0x10
 }
 
 void Set_Column_Address(unsigned char a, unsigned char b)
 {
-  sendcommand(0x21);			// Set Column Address
-  sendcommand(a);			//   Default => 0x00 (Column Start Address)
-  sendcommand(b);			//   Default => 0x7F (Column End Address)
+  sendcommand(0x21);      // Set Column Address
+  sendcommand(a);     //   Default => 0x00 (Column Start Address)
+  sendcommand(b);     //   Default => 0x7F (Column End Address)
 }
 
 
 void Set_Page_Address(unsigned char a, unsigned char b)
 {
-  sendcommand(0x22);			// Set Page Address
-  sendcommand(a);			//   Default => 0x00 (Page Start Address)
-  sendcommand(b);			//   Default => 0x07 (Page End Address)
+  sendcommand(0x22);      // Set Page Address
+  sendcommand(a);     //   Default => 0x00 (Page Start Address)
+  sendcommand(b);     //   Default => 0x07 (Page End Address)
 }
 
 
 void Set_Start_Page(unsigned char d)
 {
-  sendcommand(0xB0 | d);			// Set Page Start Address for Page Addressing Mode
+  sendcommand(0xB0 | d);      // Set Page Start Address for Page Addressing Mode
             //   Default => 0xB0 (0x00)
 }
 
@@ -304,7 +303,7 @@ void init_display(void)
   SET_RESET;
   _delay_ms(1);
 
-  sendcommand(SSD1306B_DISPLAY_OFF_YES_SLEEP_AE);//Set Display ON/OFF =>0xae:Display off
+  sendcommand(SSD1309_DISPLAY_OFF_YES_SLEEP_AE);//Set Display ON/OFF =>0xae:Display off
   
   sendcommand(0x20);//Set Memory Addressing Mode
   sendcommand(ADDR_MODE);
@@ -346,11 +345,12 @@ void init_display(void)
 
   sendcommand(0x2e);//deactivate scroll
   
-  sendcommand(SSD1306B_DISPLAY_ON_NO_SLEEP_AF);//Set Display ON/OFF =>0xaf:Display on
+  sendcommand(SSD1309_DISPLAY_ON_NO_SLEEP_AF);//Set Display ON/OFF =>0xaf:Display on
 }
 //----------------------------------------------------------------------------
 void show_BMPs_in_root(void)
   {
+    //Currently, this demo only works when using SPI interface
   File
     root_dir;
   root_dir = SD.open("/");
@@ -452,17 +452,16 @@ void fillScreen(uint8_t pattern)
 {
   for (uint8_t line = 0; line < 8; line++)
   {
-  sendcommand(0x00);      //lower column address
-  sendcommand(0x10);      //upper column address
-  sendcommand(0xB0 + line);  //set page address
-  for (uint8_t x = 0; x < 128; x++)
-  {
-    senddata(pattern);
-  }
+    sendcommand(0x00);      //lower column address
+    sendcommand(0x10);      //upper column address
+    sendcommand(0xB0 + line);  //set page address
+    for (uint8_t x = 0; x < 128; x++)
+    {
+      senddata(pattern);
+    }
 
   }
 }
-
 
 
 //================================================================================
@@ -512,20 +511,6 @@ void showSplash()
 
 void setup( void )
   {
-  // LCD SPI & control lines
-  //   ARD      | Port | LCD
-  // -----------+------+-------------------------
-  //  #7/D7     |  PD7 | SD_CS    
-  //  #8/D8     |  PB0 | LCD_RS
-  //  #9/D9     |  PB1 | LCD_RESET
-  // #10/D10    |  PB2 | LCD_CS_NOT (or SPI SS)
-  // #11/D11    |  PB3 | LCD_MOSI   (hardware SPI)
-  // #12/D12    |  PB4 | not used   (would be MISO)
-  // #13/D13    |  PB5 | LCD_SCK    (hardware SPI)
-  // #23/D14/A0 |  PC0 | Touch XL   (only used on TS modules)
-  // #24/D15/A1 |  PC1 | Touch XR   (only used on TS modules)
-  // #25/D16/A2 |  PC2 | Touch YD   (only used on TS modules)
-  // #26/D17/A3 |  PC3 | Touch YU   (only used on TS modules)
   DDRB |= 0x2F;
 
   //Drive the ports to a reasonable starting state.
@@ -543,15 +528,12 @@ void setup( void )
   Serial.begin(9600);
   Serial.println("setup()");
 
-  // Initialize SPI. By default the clock is 4MHz.
+  #ifdef SPI_4_WIRE
+  //SPI begin transactions takes ~2.5us
   SPI.begin();
-  //Bump the clock to 8MHz. Appears to be the maximum.
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
 
-  //Fire up the I2C OLED
-  Serial.println("init_display()");
-  init_display();
-
+  
   // For the Seeduino I am using, the default speed of SPI_HALF_SPEED
   // set in C:\Program Files (x86)\Arduino\libraries\SD\src\SD.cpp
   // results in a 4MHz clock.
@@ -585,14 +567,28 @@ void setup( void )
     {
     Serial.println("Card initialized.");
     }
+#endif
+        
+#ifdef I2C
+  //
+  //Get the I2C going
+  Wire.begin();
+  //Thanks to Limor / Adafruit for the hint ;-)   
+  TWBR = 12; // upgrade to 400KHz!
+#endif
+
+  //Fire up the I2C OLED
+  Serial.println("init_display()");
+  init_display();
+
   }
 //============================================================================
 // DEFINES
-#define waittime 2000
+#define waittime 1000
 
 #define splashdemo  1
 #define filldemo    1
-#define bmpdemo     0
+#define bmpdemo     0 //only works in SPI
 
 //============================================================================
 void loop(void)
@@ -601,17 +597,16 @@ void loop(void)
 fillScreen(0x00);
 delay(waittime);
   showSplash();
-  while(1);
   delay(waittime);
 #endif
 
 #if filldemo
   fillScreen(0x0f);
-  delay(1000);
+  delay(waittime);
   fillScreen(0xf0);
-  delay(1000);
+  delay(waittime);
   fillScreen(0x00);
-  delay(1000);
+  delay(waittime);
   fillScreen(0xff);
   delay(waittime);
 #endif

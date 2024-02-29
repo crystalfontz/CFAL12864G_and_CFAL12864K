@@ -1,11 +1,9 @@
 
 //===========================================================================
 //
-//  Code written for Seeeduino v4.2 runnung at 3.3v
+//  Code written for Seeeduino runnung at 3.3v
 //
-//  CRYSTALFONTZ CFAL12864K 128x64 OLED in SPI mode
-//
-//  ref: https://www.crystalfontz.com/product/cfal12864k
+//  Crystalfontz CFAL12864K/CFAL12864G 128x64 OLED 
 //
 //  The controller is a Solomon Systech SSD1309
 //    https://www.crystalfontz.com/controllers/SolomonSystech/SSD1309/

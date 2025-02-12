@@ -36,63 +36,137 @@
 //
 //For more information, please refer to <http://unlicense.org/>
 //===========================================================================
+/*
+The CFAL12864K is a 3.3v device. You need a 3.3v Arduino to operate this
+code properly. We used a seeedunio v4.2 set to 3.3v:
+https://www.crystalfontz.com/product/cfapn15062-seeeduino-arduino-clone-microprocessor
+
+
+  BS0,BS1 interface settings:
+  
+      Interface         | BS1 | BS2 
+  ----------------------+-----+-----
+    I2C                 |  1  |  0  
+    4-wire SPI          |  0  |  0  
+    8-bit 6800 Parallel |  0  |  1  
+    8-bit 8080 Parallel |  1  |  1  
+  Select the interface
+
+Connections:
+    ==================
+    SD Card => Arduino
+    ==================
+        GND => GND
+       MISO => D12
+        CLK => D13
+       MOSI => D11
+         CS => D7
+        3V3 => 3V3
+
+    ===============
+    Arduino => OLED SPI
+    ===============
+        3V3 => Pin 11 (also through ~10uF cap to GND)
+        GND => Pins 1 and 2
+         D8 => Pin 17
+         D9 => Pin 16
+        D10 => Pin 15
+        D11 => Pin 21
+        D13 => Pin 20
+        Vdd => Pin 30 (externally provided)
+
+    ===============
+    Arduino => OLED I2C
+    ===============
+        3V3 => Pin 11 (also through ~10uF cap to GND)
+        GND => Pins 1 and 2
+        D9  => Pin 16
+        A4  => Pin 21 and 22 (1k resistor to 3v3)
+        A5  => Pin 20 (1k resistor to 3v3)
+        Vdd => Pin 30 (externally provided)
+
+    ============
+    OLED => OLED
+    ============
+     Pin 12 => (GND for SPI) (3V3 for I2C)
+     Pin 13 => GND
+     Pin 18 => GND
+     Pin 19 => GND
+     Pin 28 => ~885Ω to GND
+     Pin 29 => ~10uF cap to GND
+     Pin 31 => GND
+*/
+//============================================================================
 
 #define ADDR_MODE 2 //0:horizontal, 1:vertical, 2:page
 
-#define SSD1309_VCOMH_DESELECT_0p65xVCC_00     (0x00)
-#define SSD1309_COM_CONFIG_SEQUENTIAL_LEFT_02  (0x02)
-#define SSD1309_VCOMH_DESELECT_0p71xVCC_10     (0x10)
-#define SSD1309_COM_CONFIG_ALTERNATE_LEFT_12   (0x12)
-#define SSD1309_DCDC_CONFIG_7p5v_14            (0x14)
-#define SSD1309_DCDC_CONFIG_6p0v_15            (0x15)
-#define SSD1309_VCOMH_DESELECT_0p77xVCC_20     (0x20)
-#define SSD1309_COM_CONFIG_SEQUENTIAL_RIGHT_22 (0x22)
-#define SSD1309_DEACTIVATE_SCROLL_2E           (0x2E)  //Missing from Datasheet
-#define SSD1309_VCOMH_DESELECT_0p83xVCC_30     (0x30)
-#define SSD1309_COM_CONFIG_ALTERNATE_RIGHT_32  (0x32)
-#define SSD1309_DISPLAY_START_LINE_40          (0x40)
-#define SSD1309_CONTRAST_PREFIX_81             (0x81)
-#define SSD1309_DCDC_CONFIG_PREFIX_8D          (0x8D)
-#define SSD1309_DCDC_CONFIG_8p5v_94            (0x94)
-#define SSD1309_DCDC_CONFIG_9p0v_95            (0x95)
-#define SSD1309_SEG0_IS_COL_0_A0               (0xA0)
-#define SSD1309_SEG0_IS_COL_127_A1             (0xA1)
-#define SSD1309_ENTIRE_DISPLAY_NORMAL_A4       (0xA4)
-#define SSD1309_ENTIRE_DISPLAY_FORCE_ON_A5     (0xA5)
-#define SSD1309_INVERSION_NORMAL_A6            (0xA6)
-#define SSD1309_INVERSION_INVERTED_A7          (0xA7)
-#define SSD1309_MULTIPLEX_RATIO_PREFIX_A8      (0xA8)
-#define SSD1309_SET_MASTER_CONFIGURATION_AD    (0xAD)  //Missing from Datasheet
-#define SSD1309_DISPLAY_OFF_YES_SLEEP_AE       (0xAE)
-#define SSD1309_DISPLAY_ON_NO_SLEEP_AF         (0xAF)
-#define SSD1309_SCAN_DIR_UP_C0                 (0xC0)
-#define SSD1309_SCAN_DIR_DOWN_C8               (0xC8)
-#define SSD1309_DISPLAY_OFFSET_PREFIX_D3       (0xD3)
-#define SSD1309_CLOCK_DIVIDE_PREFIX_D5         (0xD5)
+#define SSD1309_VCOMH_DESELECT_0p65xVCC_00          (0x00)
+#define SSD1309_COM_CONFIG_SEQUENTIAL_LEFT_02       (0x02)
+#define SSD1309_VCOMH_DESELECT_0p71xVCC_10          (0x10)
+#define SSD1309_COM_CONFIG_ALTERNATE_LEFT_12        (0x12)
+#define SSD1309_DCDC_CONFIG_7p5v_14                 (0x14)
+#define SSD1309_DCDC_CONFIG_6p0v_15                 (0x15)
+#define SSD1309_VCOMH_DESELECT_0p77xVCC_20          (0x20)
+#define SSD1309_COM_CONFIG_SEQUENTIAL_RIGHT_22      (0x22)
+#define SSD1309_DEACTIVATE_SCROLL_2E                (0x2E)  //Missing from Datasheet
+#define SSD1309_VCOMH_DESELECT_0p83xVCC_30          (0x30)
+#define SSD1309_COM_CONFIG_ALTERNATE_RIGHT_32       (0x32)
+#define SSD1309_DISPLAY_START_LINE_40               (0x40)
+#define SSD1309_CONTRAST_PREFIX_81                  (0x81)
+#define SSD1309_DCDC_CONFIG_PREFIX_8D               (0x8D)
+#define SSD1309_DCDC_CONFIG_8p5v_94                 (0x94)
+#define SSD1309_DCDC_CONFIG_9p0v_95                 (0x95)
+#define SSD1309_SEG0_IS_COL_0_A0                    (0xA0)
+#define SSD1309_SEG0_IS_COL_127_A1                  (0xA1)
+#define SSD1309_ENTIRE_DISPLAY_NORMAL_A4            (0xA4)
+#define SSD1309_ENTIRE_DISPLAY_FORCE_ON_A5          (0xA5)
+#define SSD1309_INVERSION_NORMAL_A6                 (0xA6)
+#define SSD1309_INVERSION_INVERTED_A7               (0xA7)
+#define SSD1309_MULTIPLEX_RATIO_PREFIX_A8           (0xA8)
+#define SSD1309_SET_MASTER_CONFIGURATION_AD         (0xAD)  //Missing from Datasheet
+#define SSD1309_DISPLAY_OFF_YES_SLEEP_AE            (0xAE)
+#define SSD1309_DISPLAY_ON_NO_SLEEP_AF              (0xAF)
+#define SSD1309_SCAN_DIR_UP_C0                      (0xC0)
+#define SSD1309_SCAN_DIR_DOWN_C8                    (0xC8)
+#define SSD1309_DISPLAY_OFFSET_PREFIX_D3            (0xD3)
+#define SSD1309_CLOCK_DIVIDE_PREFIX_D5              (0xD5)
 #define SSD1309_COLOR_AND_LOW_POWER_DISPLAY_MODE_D8 (0xD8)  //Missing from Datasheet
-#define SSD1309_PRECHARGE_PERIOD_PREFIX_D9     (0xD9)
-#define SSD1309_COM_CONFIG_PREFIX_DA           (0xDA)
-#define SSD1309_VCOMH_DESELECT_PREFIX_DB       (0xDB)
-
-//==============================================================================
-//  BS0,BS1 interface settings:
-//  
-//      Interface         | BS1 | BS2 
-//  ----------------------+-----+-----
-//    I2C                 |  1  |  0  
-//    4-wire SPI          |  0  |  0  
-//    8-bit 6800 Parallel |  0  |  1  
-//    8-bit 8080 Parallel |  1  |  1  
-//  Select the interface
-//#define SPI_4_WIRE
-#define I2C
-//==============================================================================
+#define SSD1309_PRECHARGE_PERIOD_PREFIX_D9          (0xD9)
+#define SSD1309_COM_CONFIG_PREFIX_DA                (0xDA)
+#define SSD1309_VCOMH_DESELECT_PREFIX_DB            (0xDB)
 
 #include <avr/io.h>
+#include <SD.h>
+// C:\Program Files (x86)\Arduino\libraries\SD\src\SD.cpp
+// C:\Program Files (x86)\Arduino\libraries\SD\src\SD.h
+
+#include "bootlogo1.h"
+
+#define CLR_DC    (PORTB &= ~(0x01))
+#define SET_DC    (PORTB |=  (0x01))
+#define CLR_RESET (PORTB &= ~(0x02))
+#define SET_RESET (PORTB |=  (0x02))
+#define CLR_CS    (PORTB &= ~(0x04))
+#define SET_CS    (PORTB |=  (0x04))
+#define CLR_MOSI  (PORTB &= ~(0x08))
+#define SET_MOSI  (PORTB |=  (0x08))
+#define CLR_SCK   (PORTB &= ~(0x20))
+#define SET_SCK   (PORTB |=  (0x20))
+
+#define SD_CS ( 7)
+
+//============================================================================
+#define HRES 128
+#define VRES 64
+//============================================================================
+
+// Define the interface that will be used
+#define SPI_4_WIRE
+//#define I2C
+
 #ifdef SPI_4_WIRE
   #include <SPI.h>
-// C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\SPI.cpp
-// C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SPI\src\SPI.h
+
 //================================================================================
 void sendcommand(uint8_t command)
   {
@@ -143,87 +217,6 @@ void senddata(uint8_t data)
 #endif
 //================================================================================
 
-
-
-#include <SD.h>
-// C:\Program Files (x86)\Arduino\libraries\SD\src\SD.cpp
-// C:\Program Files (x86)\Arduino\libraries\SD\src\SD.h
-
-#include "bootlogo1.h"
-
-//============================================================================
-/*
-The CFAL12864K is a 3.3v device. You need a 3.3v Arduino to operate this
-code properly. We used a seeedunio v4.2 set to 3.3v:
-https://www.crystalfontz.com/product/cfapn15062-seeeduino-arduino-clone-microprocessor
-
-Connections:
-    ==================
-    SD Card => Arduino
-    ==================
-        GND => GND
-       MISO => D12
-        CLK => D13
-       MOSI => D11
-         CS => D7
-        3V3 => 3V3
-
-   ===============
-    Arduino => OLED SPI
-    ===============
-        3V3 => Pin 11 (also through ~10uF cap to GND)
-        GND => Pins 1 and 2
-         D8 => Pin 17
-         D9 => Pin 16
-        D10 => Pin 15
-        D11 => Pin 21
-        D13 => Pin 20
-15v at 40mA => Pin 30
-
-   ===============
-    Arduino => OLED I2C
-    ===============
-        3V3 => Pin 11 (also through ~10uF cap to GND)
-        GND => Pins 1 and 2
-         D9 => Pin 16
-        A4 => Pin 21 and 22 (1k resistor to 3v3)
-        A5 => Pin 20 (1k resistor to 3v3)
- 15v at 40mA => Pin 30
-
-       ============
-       OLED => OLED
-       ============
-     Pin 12 => (GND for SPI) (3V3 for I2C)
-     Pin 13 => GND
-     Pin 18 => GND
-     Pin 19 => GND
-     Pin 28 => ~885Ω to GND
-     Pin 29 => ~10uF cap to GND
-     Pin 31 => GND
-*/
-//============================================================================
-#define OLED_RESET 4
-#define CLR_RESET (digitalWrite(OLED_RESET, LOW))
-#define SET_RESET (digitalWrite(OLED_RESET, HIGH))
-//============================================================================
-
-#define CLR_RS    (PORTB &= ~(0x01))
-#define SET_RS    (PORTB |=  (0x01))
-#define CLR_RESET (PORTB &= ~(0x02))
-#define SET_RESET (PORTB |=  (0x02))
-#define CLR_CS    (PORTB &= ~(0x04))
-#define SET_CS    (PORTB |=  (0x04))
-#define CLR_MOSI  (PORTB &= ~(0x08))
-#define SET_MOSI  (PORTB |=  (0x08))
-#define CLR_SCK   (PORTB &= ~(0x20))
-#define SET_SCK   (PORTB |=  (0x20))
-
-#define SD_CS ( 7)
-
-//============================================================================
-#define HRES 128
-#define VRES 64
-//============================================================================
 //Updated code, 2017-03-27
 #if (ADDR_MODE==2)
 void setAddr(unsigned char page,unsigned char lCol,unsigned char hCol)
@@ -461,7 +454,6 @@ void fillScreen(uint8_t pattern)
   }
 }
 
-
 //================================================================================
 // showSplash() takes an image out of flash and puts it on the screen. In this case,
 // the image stored in flash is the splash screen
@@ -513,7 +505,7 @@ void setup( void )
 
   //Drive the ports to a reasonable starting state.
   CLR_RESET;
-  CLR_RS;
+  CLR_DC;
   SET_CS;
   CLR_MOSI;
   CLR_SCK;
@@ -575,9 +567,10 @@ void setup( void )
   TWBR = 12; // upgrade to 400KHz!
 #endif
 
-  //Fire up the I2C OLED
+  //Fire up the OLED
   Serial.println("init_display()");
   init_display();
+  Serial.println("Initialized");
 
   }
 //============================================================================
